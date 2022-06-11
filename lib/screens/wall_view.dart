@@ -5,10 +5,22 @@ import 'package:pixelhub/model/wall_model.dart';
 import 'package:pixelhub/screens/download_screen.dart';
 import 'package:provider/provider.dart';
 
-class WallView extends StatelessWidget {
+class WallView extends StatefulWidget {
   final String query;
 
   const WallView({super.key, required this.query});
+
+  @override
+  State<WallView> createState() => _WallViewState();
+}
+
+class _WallViewState extends State<WallView> {
+  @override
+  void initState() {
+    Provider.of<WallpaperModel>(context, listen: false)
+        .getDataBySearch(widget.query);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +28,7 @@ class WallView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            query.toUpperCase(),
+            widget.query.toUpperCase(),
           ),
           leading: GestureDetector(
             onTap: () => Navigator.of(context).pop(),
@@ -31,51 +43,46 @@ class WallView extends StatelessWidget {
         ),
         body: Consumer<WallpaperModel>(builder: (context, value, child) {
           value.counter = 0;
-          return FutureBuilder(
-            future: value.getDataBySearch(query),
-            builder: (context, snapshot) => snapshot.connectionState ==
-                    ConnectionState.waiting
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : MasonryGridView.builder(
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    gridDelegate:
-                        SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2),
-                    itemCount: value.wallList.length,
-                    padding: const EdgeInsets.all(10),
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => WallDownload(
+          return value.isLoading
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : MasonryGridView.builder(
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
+                  itemCount: value.wallList.length,
+                  padding: const EdgeInsets.all(10),
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (ctx) => WallDownload(
+                            image: value.wallList[index].image,
+                            url: value.wallList[index].download,
+                            id: value.wallList[index].id,
+                            blurHash: value.wallList[index].blur_hash,
+                          ),
+                        ),
+                      ),
+                      child: Container(
+                        child: AspectRatio(
+                          aspectRatio:
+                              double.parse(value.wallList[index].height) /
+                                  double.parse(value.wallList[index].width),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: BlurHash(
+                              hash: value.wallList[index].blur_hash,
                               image: value.wallList[index].image,
-                              url: value.wallList[index].download,
-                              id: value.wallList[index].id,
-                              blurHash: value.wallList[index].blur_hash,
+                              imageFit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        child: Container(
-                          child: AspectRatio(
-                            aspectRatio:
-                                double.parse(value.wallList[index].height) /
-                                    double.parse(value.wallList[index].width),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: BlurHash(
-                                hash: value.wallList[index].blur_hash,
-                                image: value.wallList[index].image,
-                                imageFit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-          );
+                      ),
+                    );
+                  });
         }),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:pixelhub/model/wallpaper.dart';
 
 class WallpaperModel extends ChangeNotifier {
+  bool isLoading = true;
   static const String _key = "0bwvCIUq5IL6Yr2hzXw4fCMm8xhyZd9NQDKwhdzFDX8";
   Dio dio = Dio();
   final List<WallpaperData> wallList = [];
@@ -11,14 +12,16 @@ class WallpaperModel extends ChangeNotifier {
   int counter = 0;
   Future<void> getTrending() async {
     try {
+      isLoading = true;
       var response = await dio.get("https://api.unsplash.com/photos",
           queryParameters: {"client_id": _key, "per_page": 30});
       List data = response.data;
-
       data.forEach((element) {
         WallpaperData wallpaper = WallpaperData.fromJson(element);
         trending.add(wallpaper);
       });
+      isLoading = false;
+      notifyListeners();
     } catch (e) {
       print(e);
     }
@@ -29,6 +32,7 @@ class WallpaperModel extends ChangeNotifier {
       wallList.clear();
     }
     try {
+      isLoading = true;
       var response = await dio
           .get("https://api.unsplash.com/search/photos", queryParameters: {
         "client_id": _key,
@@ -45,6 +49,8 @@ class WallpaperModel extends ChangeNotifier {
         counter++;
         await getDataBySearch(query);
       }
+      isLoading = false;
+      notifyListeners();
     } catch (e) {
       print(e);
     }

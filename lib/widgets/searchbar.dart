@@ -38,12 +38,14 @@ class SearchBar extends StatelessWidget {
                         .bodyText1!
                         .copyWith(fontSize: 18)),
                 controller: searchCtrl,
-                onSubmitted: (_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => WallView(query: searchCtrl.text),
-                    ),
-                  );
+                onEditingComplete: () {
+                  if (searchCtrl.text.isNotEmpty) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => WallView(query: searchCtrl.text),
+                      ),
+                    );
+                  }
                 },
               ),
             ),
