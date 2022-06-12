@@ -15,7 +15,7 @@ Add badges from somewhere like: [shields.io](https://shields.io/)
 
 ## Demo
 
-![]([https://github.com/Your_Repository_Name/Your_GIF_Name.gif](https://github.com/Nix-Naman/PixelHub/blob/master/Animation.gif))
+![Screenshot](https://github.com/Nix-Naman/PixelHub/blob/master/Animation.gif)
 
 
 ## Features
